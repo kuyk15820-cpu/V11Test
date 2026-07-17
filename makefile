@@ -59,7 +59,7 @@ include $(THEOS_MAKE_PATH)/application.mk
 include $(THEOS_MAKE_PATH)/aggregate.mk
 
 before-package::
-	@echo "[[*]] Copying all FFmpegKit frameworks from deps into App Bundle..."
+	@echo "[*] Copying all FFmpegKit frameworks from deps into App Bundle..."
 	@mkdir -p $(THEOS_STAGING_DIR)/Applications/$(APPLICATION_NAME).app/Frameworks
 	
 	# [แก้ไข] ดึงไฟล์ .framework ทั้ง 8 ตัวจากโฟลเดอร์ deps เข้าไปในแอปพลิเคชันโดยตรง
@@ -76,6 +76,18 @@ after-package::
 	@mkdir -p Payload
 	@cp -r .theos/_/Applications/$(APPLICATION_NAME).app Payload/
 	@chmod 755 Payload/$(APPLICATION_NAME).app/$(APPLICATION_NAME)
+	
+	@echo "[*] Force fixing permissions for Firebase binaries inside Payload before zip..."
+	# [แก้ไขเพิ่มล่าสุด] บังคับสิทธิ์ 755 ให้ตัว Binary ทั้งหมดในโครงสร้าง Payload เพื่อไม่ให้ Theos รีเซ็ตกลับเป็นแบบเดิม
+	@chmod 755 Payload/$(APPLICATION_NAME).app/Frameworks/FirebaseRemoteConfig.framework/FirebaseRemoteConfig
+	@chmod 755 Payload/$(APPLICATION_NAME).app/Frameworks/FirebaseRemoteConfigInterop.framework/FirebaseRemoteConfigInterop
+	@chmod 755 Payload/$(APPLICATION_NAME).app/Frameworks/FirebaseCore.framework/FirebaseCore
+	@chmod 755 Payload/$(APPLICATION_NAME).app/Frameworks/FirebaseCoreInternal.framework/FirebaseCoreInternal
+	@chmod 755 Payload/$(APPLICATION_NAME).app/Frameworks/FirebaseInstallations.framework/FirebaseInstallations
+	@chmod 755 Payload/$(APPLICATION_NAME).app/Frameworks/FBLPromises.framework/FBLPromises
+	@chmod 755 Payload/$(APPLICATION_NAME).app/Frameworks/GoogleUtilities.framework/GoogleUtilities
+	@chmod 755 Payload/$(APPLICATION_NAME).app/Frameworks/nanopb.framework/nanopb
+	
 	@zip -rq $(APPLICATION_NAME).ipa Payload
 	@rm -rf Payload
 	@mkdir -p packages
